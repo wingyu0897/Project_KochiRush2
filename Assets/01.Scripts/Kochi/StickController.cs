@@ -1,27 +1,40 @@
-using System.Collections;
-using System.Collections.Generic;
+/*
+*/
 using UnityEngine;
 
 public class StickController : MonoBehaviour
 {
-	[SerializeField] private Transform stickTrm;
+	[Header("Positiion & Movement")]
 
 	[Range(0, 1.0f)]
 	[SerializeField] private float boundXRange = 0.8f;
 	private float boundX;
 	[SerializeField] private float posYOffset = 1f;
 	private float posY;
-
 	[SerializeField] private float moveYOffset = 1f;
 	private float moveBoundY;
 
+
+	[Header("Test")]
+
+	[SerializeField] private Projectile test;
+	private Projectile projectile;
+
 	private void Awake()
 	{
+		// 화면의 좌측 하단의 좌표를 기준으로 위치를 조정 및 변수 초기화
 		Vector3 bottomRight = Camera.main.ViewportToWorldPoint(new Vector3(1, 0));
 		boundX = bottomRight.x * boundXRange;
 		posY = bottomRight.y + posYOffset;
 		moveBoundY = posY + moveYOffset;
 		transform.position = new Vector3(0, posY, 0);
+	}
+
+	private void Start()
+	{
+		projectile = PoolManager.Instance.Pop(test.gameObject.name) as Projectile;
+		projectile.transform.SetParent(transform);
+		projectile.transform.localPosition = Vector3.zero;
 	}
 
 	private void Update()
@@ -39,7 +52,8 @@ public class StickController : MonoBehaviour
 				Rotate(pos);
 				if (touch.phase == TouchPhase.Ended)
 				{
-					//Shoot();
+					projectile.Shoot(pos - transform.position, 30f);
+					projectile.transform.SetParent(null);
 				}
 			}
 		}
